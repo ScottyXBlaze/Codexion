@@ -1,1 +1,5 @@
-*.o
+*
+!*.c
+!*.h
+!Makefile
+!README.md
