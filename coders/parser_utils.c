@@ -6,7 +6,7 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 19:01:54 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/02 21:14:18 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/05 15:05:21 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,12 @@ int	validate_int(char *str)
 
 	i = 0;
 	str = remove_unnecessary(str);
-	if (strlen(str) > 10)
+	if (strlen(str) > 10 || !str[i])
 	{
 		if (strcmp(str, "2147483647") > 0)
-		{
 			printf("Number too large: %s\n", str);
-			return (0);
-		}
-		printf("Number too large: %s\n", str);
+		else
+			printf("Invalid parameter: %s\n", str);
 		return (0);
 	}
 	while (str[i])
@@ -55,7 +53,7 @@ static char	*remove_unnecessary(char *str)
 		i++;
 	if (str[i] == '+')
 		i++;
-	while (str[i] == '0' && ft_isspace(str[i + 1]))
+	while (str[i] == '0' && ft_isnumber(str[i + 1]))
 		i++;
 	return (&str[i]);
 }

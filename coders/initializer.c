@@ -6,12 +6,13 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:26:28 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/02 23:01:21 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/05 21:04:57 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdbool.h>
 #include "codexion.h"
+#include <limits.h>
+#include <stdbool.h>
 
 int	set_memory(t_all *all)
 {
@@ -42,7 +43,7 @@ int	init_dongles(t_all *all)
 			return (0);
 		}
 		all->dongles[i].is_taken = false;
-		all->dongles[i].available_at = 0.0;
+		all->dongles[i].available_at = INT_MIN;
 		i++;
 	}
 	return (1);
@@ -60,6 +61,7 @@ int	init_all(t_all *all, t_coder *coders)
 		destroy_all(all, coders);
 		return (0);
 	}
-	all->running = false;
+	all->start_time = get_time(all);
+	all->running = true;
 	return (1);
 }

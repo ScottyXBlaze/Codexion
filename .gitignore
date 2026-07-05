@@ -1,6 +1,3 @@
-*
-!*.c
-!*.h
-!Makefile
-!README.md
-!.gitmessage
+*.o
+*.out
+codexion

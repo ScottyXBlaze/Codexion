@@ -6,6 +6,8 @@ SRC	=	codexion.c \
 		initializer.c \
 		destructor.c \
 		coders.c \
+		time.c \
+		dongle.c \
 
 
 OBJS = $(SRC:.c=.o)

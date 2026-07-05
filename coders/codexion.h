@@ -6,22 +6,24 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 19:02:26 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/02 23:06:03 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/05 21:05:48 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <limits.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 typedef struct s_dongle
 {
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond;
-	long long		available_at;
+	long int		available_at;
 	bool			is_taken;
 }					t_dongle;
 
@@ -65,10 +67,11 @@ typedef struct s_coder
 	int				id;
 	t_state			state;
 	pthread_t		thread;
+	pthread_mutex_t	mutex;
 	long long		time;
 	int				nb_activity;
-	t_dongle		l_dongle;
-	t_dongle		r_dongle;
+	t_dongle		*l_dongle;
+	t_dongle		*r_dongle;
 	t_all			*all;
 }					t_coder;
 
@@ -80,5 +83,9 @@ int					init_all(t_all *all, t_coder *coders);
 t_coder				*init_coders(t_all *all, t_coder *coders);
 int					destroy_dongles(t_all *all);
 int					destroy_all(t_all *all, t_coder *coders);
-
 int					destroy_coders(t_coder *coders);
+long int			get_time(t_all *all);
+void				ft_sleep(long long sleep_time, t_all *all);
+int					can_take_dongle(t_all *all, t_dongle *dongle);
+
+void				release_dongle(t_all *all, t_dongle *dongle);
