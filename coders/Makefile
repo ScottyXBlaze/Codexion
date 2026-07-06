@@ -8,6 +8,7 @@ SRC	=	codexion.c \
 		coders.c \
 		time.c \
 		dongle.c \
+		monitor.c \
 
 
 OBJS = $(SRC:.c=.o)

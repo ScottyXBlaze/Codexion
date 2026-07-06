@@ -6,12 +6,13 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:26:28 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/05 21:04:57 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/06 11:17:33 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <limits.h>
+#include <pthread.h>
 #include <stdbool.h>
 
 int	set_memory(t_all *all)
@@ -37,12 +38,6 @@ int	init_dongles(t_all *all)
 			destroy_dongles(all);
 			return (0);
 		}
-		if (pthread_cond_init(&all->dongles[i].cond, NULL))
-		{
-			destroy_dongles(all);
-			return (0);
-		}
-		all->dongles[i].is_taken = false;
 		all->dongles[i].available_at = INT_MIN;
 		i++;
 	}
@@ -57,6 +52,11 @@ int	init_all(t_all *all, t_coder *coders)
 		return (0);
 	}
 	if (pthread_mutex_init(&all->running_mutex, NULL))
+	{
+		destroy_all(all, coders);
+		return (0);
+	}
+	if (pthread_create(&all->monitor, NULL, monitor_loop, all))
 	{
 		destroy_all(all, coders);
 		return (0);

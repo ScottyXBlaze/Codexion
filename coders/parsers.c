@@ -6,7 +6,7 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 19:02:08 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/02 21:48:43 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/06 10:48:47 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,10 @@ int	parsers(int argc, char **argv, t_all *all)
 	all->params.compiles_required = atoi(argv[6]);
 	all->params.dongle_cooldown = atoi(argv[7]);
 	all->params.scheduler = scheduler(argv[8]);
+	if (all->params.nb_coders < 2) {
+		printf("[ERROR] Not enough coder\n");
+		return (0);
+	}
 	return (1);
 }
 

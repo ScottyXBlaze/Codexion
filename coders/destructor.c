@@ -6,7 +6,7 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:29:04 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/02 23:03:02 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/06 11:17:41 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ int	destroy_dongles(t_all *all)
 	i = 0;
 	while (i < all->params.nb_coders)
 	{
-		pthread_cond_destroy(&all->dongles[i].cond);
 		pthread_mutex_destroy(&all->dongles[i].mutex);
 		i++;
 	}

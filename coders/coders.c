@@ -6,7 +6,7 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 22:00:48 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/05 21:13:45 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/06 11:37:31 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 
 void		*coders_loop(void *args);
 void		init_thread_coders(t_coder *coders);
-void		print_state(int time, int id, int state);
+void		print_state(t_coder *coder, t_state state);
 static void	coder_compile(t_coder *coder);
 static void	coder_debug(t_coder *coder);
 static void	coder_refactor(t_coder *coder);
@@ -41,8 +41,9 @@ t_coder	*init_coders(t_all *all, t_coder *coders)
 		coders[i].all = all;
 		coders[i].l_dongle = &all->dongles[i];
 		coders[i].r_dongle = &all->dongles[(i + 1) % all->params.nb_coders];
-		coders[i].nb_activity = 0;
-		coders[i].time = 0.0;
+		coders[i].compile_count = 0;
+		coders[i].last_compile = get_time(all);
+		coders[i].is_finished = false;
 		if (pthread_mutex_init(&coders[i].mutex, NULL))
 		{
 			destroy_dongles(all);
@@ -50,6 +51,7 @@ t_coder	*init_coders(t_all *all, t_coder *coders)
 		}
 		i++;
 	}
+	all->coders = coders;
 	init_thread_coders(coders);
 	return (coders);
 }
@@ -74,6 +76,8 @@ void	init_thread_coders(t_coder *coders)
 			return ;
 		i++;
 	}
+	if (pthread_join(coders->all->monitor, NULL))
+		return ;
 }
 
 void	*coders_loop(void *args)
@@ -81,79 +85,83 @@ void	*coders_loop(void *args)
 	t_coder	*coder;
 
 	coder = (t_coder *)args;
-	while (!coder->all->running)
+	while (!is_running(coder->all))
 		usleep(100);
 	pthread_mutex_lock(&coder->mutex);
-	coder->time = get_time(coder->all);
+	coder->last_compile = get_time(coder->all);
 	pthread_mutex_unlock(&coder->mutex);
-	while (1)
+	while (is_running(coder->all))
 	{
-		if (!coder->all->running)
+		if (coder->id % 2 == 0)
 		{
-			pthread_mutex_unlock(&coder->all->running_mutex);
-			break ;
-		}
-		if (!coder->id % 2)
-		{
-			pthread_mutex_lock(&coder->r_dongle->mutex);
-			pthread_mutex_lock(&coder->l_dongle->mutex);
+			lock_dongle(coder->all, coder->r_dongle);
+			print_state(coder, take_dongle);
+			lock_dongle(coder->all, coder->l_dongle);
+			print_state(coder, take_dongle);
 		}
 		else
 		{
-			pthread_mutex_lock(&coder->l_dongle->mutex);
-			pthread_mutex_lock(&coder->r_dongle->mutex);
+			lock_dongle(coder->all, coder->l_dongle);
+			print_state(coder, take_dongle);
+			lock_dongle(coder->all, coder->r_dongle);
+			print_state(coder, take_dongle);
 		}
 		coder_compile(coder);
-		pthread_mutex_unlock(&coder->l_dongle->mutex);
-		pthread_mutex_unlock(&coder->r_dongle->mutex);
+		unlock_dongle(coder->all, coder->l_dongle);
+		unlock_dongle(coder->all, coder->r_dongle);
 		coder_debug(coder);
 		coder_refactor(coder);
-		if (coder->all->params.compiles_required < coder->nb_activity)
+		if (coder->all->params.compiles_required > 0
+			&& coder->compile_count >= coder->all->params.compiles_required)
+		{
+			pthread_mutex_lock(&coder->mutex);
+			coder->is_finished = true;
+			pthread_mutex_unlock(&coder->mutex);
 			break ;
+		}
 	}
 	return (NULL);
 }
-
 static void	coder_compile(t_coder *coder)
 {
-	pthread_mutex_lock(&coder->all->message_mutex);
-	print_state(get_time(coder->all), coder->id, 0);
-	print_state(get_time(coder->all), coder->id, 0);
-	print_state(get_time(coder->all), coder->id, 1);
-	pthread_mutex_unlock(&coder->all->message_mutex);
+	print_state(coder, compile);
 	ft_sleep(coder->all->params.compile, coder->all);
 	pthread_mutex_lock(&coder->mutex);
-	coder->nb_activity++;
-	coder->time = get_time(coder->all);
+	coder->compile_count++;
+	coder->last_compile = get_time(coder->all);
 	pthread_mutex_unlock(&coder->mutex);
 }
 
 static void	coder_debug(t_coder *coder)
 {
-	pthread_mutex_lock(&coder->all->message_mutex);
-	print_state(get_time(coder->all), coder->id, 2);
-	pthread_mutex_unlock(&coder->all->message_mutex);
+	print_state(coder, debug);
 	ft_sleep(coder->all->params.debug, coder->all);
 }
 
 static void	coder_refactor(t_coder *coder)
 {
-	pthread_mutex_lock(&coder->all->message_mutex);
-	print_state(get_time(coder->all), coder->id, 3);
-	pthread_mutex_unlock(&coder->all->message_mutex);
+	print_state(coder, refactor);
 	ft_sleep(coder->all->params.refactor, coder->all);
 }
 
-void	print_state(int time, int id, int state)
+void	print_state(t_coder *coder, t_state state)
 {
-	if (state == 0)
-		printf("[%d] %d has taken a dongle\n", time, id);
-	if (state == 1)
-		printf("[%d] %d is compiling\n", time, id);
-	if (state == 2)
-		printf("[%d] %d is debugging\n", time, id);
-	if (state == 3)
-		printf("[%d] %d is refactoring\n", time, id);
-	if (state == 4)
-		printf("[%d] %d burned out\n", time, id);
+	long int	time;
+
+	pthread_mutex_lock(&coder->all->message_mutex);
+	time = get_time(coder->all);
+	if (is_running(coder->all) || state == burned_out)
+	{
+		if (state == take_dongle)
+			printf("%ld %d has taken a dongle\n", time, coder->id);
+		else if (state == compile)
+			printf("%ld %d is compiling\n", time, coder->id);
+		else if (state == debug)
+			printf("%ld %d is debugging\n", time, coder->id);
+		else if (state == refactor)
+			printf("%ld %d is refactoring\n", time, coder->id);
+		else
+			printf("%ld %d burned out\n", time, coder->id);
+	}
+	pthread_mutex_unlock(&coder->all->message_mutex);
 }
