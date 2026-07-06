@@ -9,6 +9,8 @@ SRC	=	codexion.c \
 		time.c \
 		dongle.c \
 		monitor.c \
+		edf.c \
+		fifo.c \
 
 
 OBJS = $(SRC:.c=.o)

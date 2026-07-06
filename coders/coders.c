@@ -6,7 +6,7 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 22:00:48 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/06 11:37:31 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/06 12:56:12 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ t_coder	*init_coders(t_all *all, t_coder *coders)
 		coders[i].compile_count = 0;
 		coders[i].last_compile = get_time(all);
 		coders[i].is_finished = false;
+		coders[i].deadline = 0;
 		if (pthread_mutex_init(&coders[i].mutex, NULL))
 		{
 			destroy_dongles(all);
@@ -94,16 +95,16 @@ void	*coders_loop(void *args)
 	{
 		if (coder->id % 2 == 0)
 		{
-			lock_dongle(coder->all, coder->r_dongle);
+			lock_dongle(coder, coder->r_dongle);
 			print_state(coder, take_dongle);
-			lock_dongle(coder->all, coder->l_dongle);
+			lock_dongle(coder, coder->l_dongle);
 			print_state(coder, take_dongle);
 		}
 		else
 		{
-			lock_dongle(coder->all, coder->l_dongle);
+			lock_dongle(coder, coder->l_dongle);
 			print_state(coder, take_dongle);
-			lock_dongle(coder->all, coder->r_dongle);
+			lock_dongle(coder, coder->r_dongle);
 			print_state(coder, take_dongle);
 		}
 		coder_compile(coder);

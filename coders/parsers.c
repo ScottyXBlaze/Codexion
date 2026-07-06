@@ -29,7 +29,8 @@ int	parsers(int argc, char **argv, t_all *all)
 	all->params.compiles_required = atoi(argv[6]);
 	all->params.dongle_cooldown = atoi(argv[7]);
 	all->params.scheduler = scheduler(argv[8]);
-	if (all->params.nb_coders < 2) {
+	if (all->params.nb_coders < 2)
+	{
 		printf("[ERROR] Not enough coder\n");
 		return (0);
 	}

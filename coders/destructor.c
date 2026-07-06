@@ -6,14 +6,23 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 20:29:04 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/06 11:17:41 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/06 12:44:13 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
 int	destroy_coders(t_coder *coders);
+void	destroy_dongle(t_dongle *dongle)
+{
+	pthread_mutex_destroy(&dongle->mutex);
 
+	pthread_mutex_destroy(&dongle->fifo.mutex);
+	free(dongle->fifo.array);
+
+	pthread_mutex_destroy(&dongle->edf.mutex);
+	free(dongle->edf.array);
+}
 int	destroy_dongles(t_all *all)
 {
 	int	i;
@@ -21,7 +30,7 @@ int	destroy_dongles(t_all *all)
 	i = 0;
 	while (i < all->params.nb_coders)
 	{
-		pthread_mutex_destroy(&all->dongles[i].mutex);
+		destroy_dongle(&all->dongles[i]);
 		i++;
 	}
 	free(all->dongles);

@@ -31,7 +31,7 @@ void	ft_sleep(long long sleep_time, t_all *all)
 	while ((get_time(all) - start) < sleep_time)
 	{
 		if (!is_running(all))
-			break;
+			break ;
 		usleep(500);
 	}
 }
