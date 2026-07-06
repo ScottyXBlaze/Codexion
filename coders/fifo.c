@@ -6,7 +6,7 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/06 11:46:28 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/06 12:59:35 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/06 23:23:35 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,22 +78,29 @@ void	fifo_pop(t_fifo *fifo)
 
 void	lock_dongle_fifo(t_coder *coder, t_dongle *dongle)
 {
-	fifo_push(&dongle->fifo, coder);
+	long int	remaining_cooldown;
 
+	fifo_push(&dongle->fifo, coder);
 	while (is_running(coder->all))
 	{
 		if (fifo_front(&dongle->fifo) == coder)
 		{
 			pthread_mutex_lock(&dongle->mutex);
-
-			if (get_time(coder->all)
-				>= dongle->available_at)
+			if (can_take_dongle(coder->all, dongle))
 			{
 				fifo_pop(&dongle->fifo);
-				pthread_mutex_unlock(&dongle->mutex);
 				return ;
 			}
+			remaining_cooldown = dongle->available_at - get_time(coder->all);
 			pthread_mutex_unlock(&dongle->mutex);
+			if (remaining_cooldown > 0)
+			{
+				if (remaining_cooldown > 1)
+					usleep(1000);
+				else
+					usleep(remaining_cooldown * 1000);
+				continue ;
+			}
 		}
 		usleep(100);
 	}

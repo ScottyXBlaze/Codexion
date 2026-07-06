@@ -79,12 +79,12 @@ int	init_all(t_all *all, t_coder *coders)
 		destroy_all(all, coders);
 		return (0);
 	}
+	all->start_time = get_time(all);
+	all->running = true;
 	if (pthread_create(&all->monitor, NULL, monitor_loop, all))
 	{
 		destroy_all(all, coders);
 		return (0);
 	}
-	all->start_time = get_time(all);
-	all->running = true;
 	return (1);
 }

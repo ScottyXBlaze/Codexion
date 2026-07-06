@@ -23,9 +23,11 @@ void	*monitor_loop(void *arg)
 	long int	now;
 
 	all = (t_all *)arg;
-	now = get_time(all);
+	while (is_running(all) && all->coders == NULL)
+		usleep(100);
 	while (is_running(all))
 	{
+		now = get_time(all);
 		i = 0;
 		finished = true;
 		end_simulation = true;
@@ -54,4 +56,3 @@ void	*monitor_loop(void *arg)
 	}
 	return (NULL);
 }
-

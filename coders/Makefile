@@ -38,4 +38,4 @@ so:
 	$(CC) -nostartfiles -fPIC $(CFLAGS) $(SRC)
 	gcc -nostartfiles -shared -o libft.so $(OBJ)
 
-.phony:	all clean fclean re so
+.PHONY:	all clean fclean re so

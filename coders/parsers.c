@@ -6,13 +6,14 @@
 /*   By: nyramana <nyramana@student.42antananarivo  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/07/02 19:02:08 by nyramana          #+#    #+#             */
-/*   Updated: 2026/07/06 10:48:47 by nyramana         ###   ########.fr       */
+/*   Updated: 2026/07/06 23:19:22 by nyramana         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static int			validate_args(int argc, char **argv);
 static t_scheduler	scheduler(char *str);
@@ -67,7 +68,7 @@ static int	validate_args(int argc, char **argv)
 
 static t_scheduler	scheduler(char *str)
 {
-	if (strcpy(str, "fifo") == 0)
+	if (strcmp(str, "fifo") == 0)
 		return (fifo);
 	return (edf);
 }
